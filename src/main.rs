@@ -50,6 +50,7 @@ impl Person {
     }
 
     fn render_like_button(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let style = |banana: StyleRefinement| banana.bg(rgb(BUTTON_HOVER_COLOR));
         div()
             .flex()
             .text_xl()
@@ -59,7 +60,7 @@ impl Person {
             .border_color(rgb(BORDER_COLOR))
             .text_color(rgb(BUTTON_FOREGROUND_COLOR))
             .bg(rgb(BUTTON_BACKGROUND_COLOR))
-            .hover(|style| style.bg(rgb(BUTTON_HOVER_COLOR)))
+            .hover(style)
             .on_mouse_down(MouseButton::Left, cx.listener(Self::handle_increment))
             .child("Like")
     }
@@ -72,6 +73,7 @@ impl Render for Person {
             .flex_col()
             .bg(rgb(BACKGROUND_COLOR))
             .size_full()
+            .justify_center()
             .items_center()
             .gap_2()
             .child(self.render_name())
