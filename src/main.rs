@@ -1,4 +1,4 @@
-use gpui::*;
+use gpui::{prelude::FluentBuilder, *};
 
 const BACKGROUND_COLOR: u32 = 0x000000;
 const FOREGROUND_COLOR: u32 = 0xffffff;
@@ -7,13 +7,64 @@ const BUTTON_BACKGROUND_COLOR: u32 = 0x222222;
 const BUTTON_FOREGROUND_COLOR: u32 = 0xFFFFFF;
 const BUTTON_HOVER_COLOR: u32 = 0x444444;
 
-struct Counter {
-    value: i32,
+struct Likes {
+    likes: i16,
 }
 
-impl Counter {
-    fn render_like_button(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
+#[derive(IntoElement)]
+struct CounterDisplay {
+    id: ElementId,
+    value: i16,
+}
+
+#[derive(IntoElement)]
+struct IncrementButton {
+    id: ElementId,
+    label: SharedString,
+    on_click: Option<Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>>,
+}
+
+impl CounterDisplay {
+    fn new(id: impl Into<ElementId>, value: i16) -> Self {
+        CounterDisplay {
+            id: id.into(),
+            value,
+        }
+    }
+}
+
+impl IncrementButton {
+    fn new(id: impl Into<ElementId>, label: SharedString) -> Self {
+        IncrementButton {
+            id: id.into(),
+            label,
+            on_click: None,
+        }
+    }
+
+    fn on_click(mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self {
+        self.on_click = Some(Box::new(handler));
+        self
+    }
+}
+
+impl RenderOnce for CounterDisplay {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         div()
+            .id(self.id)
+            .flex()
+            .justify_center()
+            .items_center()
+            .text_xl()
+            .text_color(rgb(FOREGROUND_COLOR))
+            .child(format!("Likes: {}", self.value))
+    }
+}
+
+impl RenderOnce for IncrementButton {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        div()
+            .id(self.id)
             .flex()
             .text_xl()
             .border_2()
@@ -22,37 +73,40 @@ impl Counter {
             .border_color(rgb(BORDER_COLOR))
             .text_color(rgb(BUTTON_FOREGROUND_COLOR))
             .bg(rgb(BUTTON_BACKGROUND_COLOR))
-            .hover(|style| style.bg(rgba(BUTTON_HOVER_COLOR)))
-            .child("Like")
-            .on_mouse_down(
-                MouseButton::Left,
-                cx.listener(|data, _, _, cx| {
-                    cx.notify();
-                    data.value += 1;
-                }),
-            )
+            .hover(|style| style.bg(rgb(BUTTON_HOVER_COLOR)))
+            .child(self.label)
+            .when_some(self.on_click, |this, on_click| {
+                return this.on_click(move |eve, win, app| (on_click)(eve, win, app));
+            })
     }
 }
 
-impl Render for Counter {
+impl Render for Likes {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div()
             .flex()
+            .flex_col()
             .bg(rgb(BACKGROUND_COLOR))
             .size_full()
-            .flex_col()
             .justify_center()
             .items_center()
-            .text_color(rgb(FOREGROUND_COLOR))
-            .child(format!("{}", &self.value))
-            .child(self.render_like_button(cx))
+            .gap_2()
+            .child(CounterDisplay::new("counter-display", self.likes))
+            .child(
+                IncrementButton::new("increment-button", "Click".into()).on_click(cx.listener(
+                    |data, _, _, app| {
+                        data.likes += 1;
+                        app.notify();
+                    },
+                )),
+            )
     }
 }
 
 fn main() {
     Application::new().run(|cx: &mut App| {
         cx.open_window(WindowOptions::default(), |_, cx| {
-            cx.new(|_| Counter { value: 0 })
+            cx.new(|_| Likes { likes: 0 })
         })
         .unwrap();
     });
