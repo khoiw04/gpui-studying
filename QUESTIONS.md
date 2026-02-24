@@ -1,7 +1,6 @@
 # Questions
 
----
-> Bài Pomodoro
+--- > Bài Pomodoro
 ## Trong Pomodoro, mình tư duy: 25 phút mình phải làm xong hết. Nhưng nếu không làm xong được, Làm sao để vẫn giữ tư duy trên để tránh bị mất tập trung?
 :::result[Kết quả]
 - **Chia nhỏ việc hơn nữa.**
@@ -14,8 +13,8 @@
       - Query DB
       - Trả response
 :::
----
-> Bài Components
+
+--- > Bài Components
 ## Tại sao handler lại là function, và tại sao nó chạy dù ko có on_click()?
 ```rust
     fn on_click(mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self {
@@ -29,6 +28,29 @@ Do **eventloop của gpui Framework** và **"tin nhắn" của hệ điều hàn
 - eventloop nhận
 - eventloop render
 :::
+
+## Cách tạo component
+1. Khai báo Props (The Blueprint)
+```rust
+struct MyComponent {
+    id: ElementId,
+    label: SharedString,
+}
+```
+
+2. Hàm khởi tạo (The Setup)
+```rust
+impl MyComponent {
+    fn new(id: impl Into<ElementId>, label: SharedString) -> Self {
+        Self { id: id.into(), label }
+    }
+}
+```
+
+3. Render UI (The Look)
+4. Sử dụng (The Execution)
+
+Gọi Component::new(...) ngay trong hàm render của View cha.
 
 ## Cách trait chứa biến "_window: &mut Window, cx: &mut Context<Self>" và đem fn render đi vào khác impl khác
 ```rust
