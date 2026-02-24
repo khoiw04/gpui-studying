@@ -25,6 +25,8 @@ Gọi Component::new(...) ngay trong hàm render của View cha.
 `struct` Props -> `impl` Values -> `render` UI -> `impl` Execution
 :::
 
+---
+
 ## Tại sao handler lại là function, và tại sao nó chạy dù ko có on_click()?
 ```rust
     fn on_click(mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self {
@@ -39,6 +41,7 @@ Do **eventloop của gpui Framework** và **"tin nhắn" của hệ điều hàn
 - eventloop render
 :::
 
+---
 
 ## Cách trait chứa biến "_window: &mut Window, cx: &mut Context<Self>" và đem fn render đi vào khác impl khác
 ```rust
@@ -102,6 +105,8 @@ impl Framework {
 
 Tất cả chỉ là tham chiếu, và không mất quyền ownership
 :::
+
+---
 
 ## Cách thức nào trong Rust: 1 hàm vừa trao quyền, 1 hàm vừa làm việc mà không mất quyền ownership
 ```rust Hàm trao quyền
