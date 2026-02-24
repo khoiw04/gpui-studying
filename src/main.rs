@@ -1,3 +1,4 @@
+// Thứ tự viết components: https://gemini.google.com/share/c8287f0d4427
 use gpui::{prelude::FluentBuilder, *};
 
 const BACKGROUND_COLOR: u32 = 0x000000;
@@ -21,12 +22,12 @@ struct CounterDisplay {
 struct IncrementButton {
     id: ElementId,
     label: SharedString,
-    on_click: Option<Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>>,
+    on_click: Option<Box<dyn Fn(&ClickEvent, &mut Window, &mut App)>>,
 }
 
 impl CounterDisplay {
     fn new(id: impl Into<ElementId>, value: i16) -> Self {
-        CounterDisplay {
+        Self {
             id: id.into(),
             value,
         }
@@ -35,15 +36,14 @@ impl CounterDisplay {
 
 impl IncrementButton {
     fn new(id: impl Into<ElementId>, label: SharedString) -> Self {
-        IncrementButton {
+        Self {
             id: id.into(),
             label,
             on_click: None,
         }
     }
-
-    fn on_click(mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self {
-        self.on_click = Some(Box::new(handler));
+    fn on_click(mut self, func: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self {
+        self.on_click = Some(Box::new(func));
         self
     }
 }
@@ -76,7 +76,7 @@ impl RenderOnce for IncrementButton {
             .hover(|style| style.bg(rgb(BUTTON_HOVER_COLOR)))
             .child(self.label)
             .when_some(self.on_click, |this, on_click| {
-                return this.on_click(move |eve, win, app| (on_click)(eve, win, app));
+                return this.on_click(move |evt, wind, app| (on_click)(evt, wind, app));
             })
     }
 }
@@ -109,5 +109,5 @@ fn main() {
             cx.new(|_| Likes { likes: 0 })
         })
         .unwrap();
-    });
+    })
 }
