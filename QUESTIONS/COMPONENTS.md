@@ -22,7 +22,7 @@ impl MyComponent {
 Gọi Component::new(...) ngay trong hàm render của View cha.
 
 :::result[Kết quả]
-`struct` Props -> `impl` Values -> `render` UI -> `impl` Execution
+`struct` Props -> `impl` Values -> `render` UI -> `add` Components
 :::
 
 ---
